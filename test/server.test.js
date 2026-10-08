@@ -36,6 +36,33 @@ test('API lists rooms, creates a booking, and retrieves it', async (t) => {
   assert.deepEqual(await listed.json(), [result]);
 });
 
+test('a direct API request that conflicts with an existing booking receives 409 with the conflicting interval', async (t) => {
+  const request = await setup(t);
+  const created = await request('/api/bookings', post(booking));
+  assert.equal(created.status, 201);
+  const existing = await created.json();
+  const conflicting = await request('/api/bookings', post({
+    ...booking,
+    startTime: '2030-06-12T09:30:00Z',
+    endTime: '2030-06-12T10:30:00Z',
+  }));
+  assert.equal(conflicting.status, 409);
+  assert.deepEqual(await conflicting.json(), {
+    error: `This room is already booked from ${existing.startTime} to ${existing.endTime}.`,
+    conflict: { startTime: existing.startTime, endTime: existing.endTime },
+  });
+  const listed = await request('/api/bookings?roomId=cedar&date=2030-06-12');
+  assert.equal((await listed.json()).length, 1);
+});
+
+test('a direct API request that does not conflict still receives 201', async (t) => {
+  const request = await setup(t);
+  const created = await request('/api/bookings', post(booking));
+  assert.equal(created.status, 201);
+  const backToBack = await request('/api/bookings', post({ ...booking, startTime: booking.endTime, endTime: '2030-06-12T11:00:00Z' }));
+  assert.equal(backToBack.status, 201);
+});
+
 test('API returns useful validation errors and does not create invalid bookings', async (t) => {
   const request = await setup(t);
   const response = await request('/api/bookings', post({ ...booking, endTime: booking.startTime }));
