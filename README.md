@@ -3,6 +3,8 @@
 A simple room-booking application. Choose a room and date, view its bookings,
 and book a meeting.
 
+Simple change
+
 ## Quick start
 
 Requires Node.js 22.12+ and npm.
