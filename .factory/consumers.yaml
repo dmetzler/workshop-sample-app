@@ -1,0 +1,11 @@
+# Consumers of this repository (Hyland Software Factory, spec 013).
+# A workspace may use this repository only with the access its entry grants
+# here, on the default branch. Narrow a request by editing its access before
+# merging; remove an entry to withdraw it. requestedBy and requestedAccess are
+# informational. Consider putting .factory/ under CODEOWNERS.
+apiVersion: factory.hyland.dev/v1alpha1
+kind: Consumers
+consumers:
+  - key: swf-dev/sfac-workspaces/workshop-sample-app
+    access: [read, write]
+    requestedAccess: [read, write]
